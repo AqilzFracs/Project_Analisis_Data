@@ -60,7 +60,7 @@ min_date = df["order_purchase_timestamp"].min()
 max_date = df["order_purchase_timestamp"].max()
 
 with st.sidebar:
-   st.image("assets/logo_qshop.jpg")
+   st.image("https://raw.githubusercontent.com/AqilzFracs/logo/refs/heads/main/logo_qshop.jpg")
    start_date, end_date = st.date_input(
         label='Time Span',min_value=min_date,
         max_value=max_date,
@@ -142,7 +142,6 @@ sns.barplot(
     palette=colors,
     ax=ax
 )
-ax.set_title("Number of Customer by Gender", loc="center", fontsize=50)
 ax.set_ylabel(None)
 ax.set_xlabel(None)
 ax.tick_params(axis='x', labelsize=35)
