@@ -23,19 +23,25 @@ def create_sum_revenue_items_df(df):
 
 @st.cache_data
 def create_payment_revenue_df(df):
-   payment_revenue_df = df.groupby("payment_type")["payment_value"].sum().sort_values(ascending=False).reset_index()
-   return payment_revenue_df
+    payment_revenue_df = df.groupby("payment_type")["payment_value"].sum().reset_index()
+    payment_revenue_df = payment_revenue_df.sort_values(by="payment_value", ascending=False)
+    print(payment_revenue_df.head())
+    return payment_revenue_df
 
 @st.cache_data
 def create_rfm_df(df, recent_date):
     rfm_df = df.groupby(by="customer_id", as_index=False).agg({
-        "order_approved_at": "max",
+        "order_purchase_timestamp": "max",
         "order_id": "nunique",
         "payment_value": "sum"
     })
 
     rfm_df.columns = ["customer_id", "max_order_timestamp", "frequency", "monetary"]
-    rfm_df["recency"] = rfm_df["max_order_timestamp"].apply(lambda x: (recent_date - x).days)
+    rfm_df["max_order_timestamp"] = pd.to_datetime(rfm_df["max_order_timestamp"])
+    rfm_df["max_order_timestamp"] = rfm_df["max_order_timestamp"].dt.date
+    rfm_df["recency"] = rfm_df["max_order_timestamp"].apply(
+    lambda x: (recent_date - x).days if pd.notnull(x) else None
+)
     rfm_df.drop("max_order_timestamp", axis=1, inplace=True)
     return rfm_df
 
@@ -55,7 +61,7 @@ def load_main_data():
 
 df = load_main_data()
 
-recent_date = df["order_purchase_timestamp"].max()
+recent_date = df["order_purchase_timestamp"].dropna().dt.date.max()
 min_date = df["order_purchase_timestamp"].min()
 max_date = df["order_purchase_timestamp"].max()
 
@@ -67,8 +73,8 @@ with st.sidebar:
         value=[min_date, max_date]
     )
   
-main_df = df[(df["order_approved_at"] >= str(start_date)) & 
-            (df["order_approved_at"] <= str(end_date))]
+main_df = df[(df["order_purchase_timestamp"] >= str(start_date)) & 
+            (df["order_purchase_timestamp"] <= str(end_date))]
 
 weekly_revenue_df = create_weekly_revenue_df(main_df)
 sum_revenue_items_df = create_sum_revenue_items_df(main_df)
