@@ -25,7 +25,6 @@ def create_sum_revenue_items_df(df):
 def create_payment_revenue_df(df):
     payment_revenue_df = df.groupby("payment_type")["payment_value"].sum().reset_index()
     payment_revenue_df = payment_revenue_df.sort_values(by="payment_value", ascending=False)
-    print(payment_revenue_df.head())
     return payment_revenue_df
 
 @st.cache_data
@@ -208,4 +207,4 @@ ax[2].tick_params(axis='x', labelsize=35)
 
 st.pyplot(fig)
 
-st.caption('Copyright by AqilzFracs 2024')
+st.caption('Copyright (c) by AqilzFracs 2024')
